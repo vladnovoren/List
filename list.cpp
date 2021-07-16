@@ -12,11 +12,13 @@ inline void ListConnectNodes(List* list, const size_t first_phys_id, const size_
 inline void ListConnectArray(List* list, const size_t begin_phys_id, const size_t end_phys_id) {
     assert(list);
 
+    list->elems[begin_phys_id].prev_phys_id = LIST_INVALID_ID;
     list->elems[begin_phys_id].cur_phys_id = begin_phys_id;
     for (size_t phys_id = begin_phys_id + 1; phys_id <= end_phys_id; phys_id++) {
         list->elems[phys_id].cur_phys_id = phys_id;
         ListConnectNodes(list, phys_id - 1, phys_id);
     }
+    list->elems[end_phys_id - 1].next_phys_id = LIST_INVALID_ID;
 }
 
 

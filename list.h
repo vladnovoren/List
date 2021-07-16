@@ -45,7 +45,7 @@ inline void ListConnectArray(List* list, const size_t begin_phys_id, const size_
 
 int ListCheckAndUpdateCapacity(List* list);
 
-int ListPushFront(List* list, const ListElemT new_elem);
+int ListPushFront(List* list, const ListElemT new_elem, size_t* phys_id);
 
 int ListPushBack(List* list, const ListElemT new_elem);
 

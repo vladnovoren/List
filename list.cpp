@@ -56,7 +56,7 @@ int ListCheckAndUpdateCapacity(List* list) {
 }
 
 
-int ListPushFront(List* list, const ListElemT new_elem) {
+int ListPushFront(List* list, const ListElemT new_elem, size_t* phys_id) {
     assert(list);
 
     int check_res = 0;
@@ -64,11 +64,13 @@ int ListPushFront(List* list, const ListElemT new_elem) {
         return check_res;
 
     size_t new_free_phys_id = list->elems[list->free_phys_id].next_phys_id;
-    ListConnectNodes(list, list->head_phys_id, list->free_phys_id);
+    ListConnectNodes(list, list->free_phys_id, list->head_phys_id);
     list->head_phys_id = list->free_phys_id;
     list->free_phys_id = new_free_phys_id;
     list->elems[list->head_phys_id].prev_phys_id = LIST_INVALID_ID;
     list->elems[list->head_phys_id].data = new_elem;
+    list->elems[list->free_phys_id].prev_phys_id = LIST_INVALID_ID;
+    *phys_id = list->head_phys_id;
 
     return LIST_NO_ERRORS;
 }

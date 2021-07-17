@@ -1,0 +1,7 @@
+digraph {
+    node [shape = "box"];
+
+    "first" [fillcolor = "red"];
+    "second" [fillcolor = "yellow"];
+    "first" -> "second";
+}

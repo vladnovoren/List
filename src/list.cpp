@@ -18,7 +18,7 @@ inline void ListConnectArray(List* list, const size_t begin_phys_id, const size_
         list->elems[phys_id].cur_phys_id = phys_id;
         ListConnectNodes(list, phys_id - 1, phys_id);
     }
-    list->elems[end_phys_id - 1].next_phys_id = LIST_INVALID_ID;
+    list->elems[end_phys_id].next_phys_id = LIST_INVALID_ID;
 }
 
 
@@ -29,15 +29,14 @@ int ListAlloc(List* list) {
     if (!list->elems)
         return LIST_ALLOC_ERROR;
 
-    list->elems[0].prev_phys_id = LIST_INVALID_ID;
+    list->n_elems  = LIST_DEFAULT_N_ELEMS;
+    list->capacity = LIST_DEFAULT_CAPACITY;
     ListConnectArray(list, 0, list->capacity - 1);
-    list->elems[list->capacity - 1].next_phys_id = LIST_INVALID_ID;
-
-    list->n_elems      = LIST_DEFAULT_N_ELEMS;
-    list->capacity     = LIST_DEFAULT_CAPACITY;
     list->head_phys_id = LIST_INVALID_ID;
     list->tail_phys_id = LIST_INVALID_ID;
     list->free_phys_id = 0;
+
+    return LIST_NO_ERRORS;
 }
 
 
@@ -49,10 +48,18 @@ int ListCheckAndUpdateCapacity(List* list) {
         ListNode* new_elems = (ListNode*)realloc(list->elems, sizeof(ListNode) * new_capacity);
         if (!new_elems)
             return LIST_ALLOC_ERROR;
+        list->elems = new_elems;
         list->free_phys_id = list->n_elems;
+        // printf("n_elems: %zu\n", list->n_elems);
         ListConnectArray(list, list->n_elems, new_capacity - 1);
-    } else
-        return LIST_NO_ERRORS;
+        list->capacity = new_capacity;
+    // for (size_t i = 0; i < list->capacity; i++) {
+    //     printf("cur_phys_id: %zu, prev_phys_id: %zu, next_phys_id: %zu\n", i, list->elems[i].prev_phys_id, list->elems[i].next_phys_id);
+    // }
+    
+    }
+
+    return LIST_NO_ERRORS;
 }
 
 
@@ -64,13 +71,19 @@ int ListPushFront(List* list, const ListElemT new_elem, size_t* phys_id) {
         return check_res;
 
     size_t new_free_phys_id = list->elems[list->free_phys_id].next_phys_id;
-    ListConnectNodes(list, list->free_phys_id, list->head_phys_id);
+    if (list->n_elems)
+        ListConnectNodes(list, list->free_phys_id, list->head_phys_id);
+    else {
+        list->elems[list->free_phys_id].next_phys_id = LIST_INVALID_ID;
+        list->tail_phys_id = list->free_phys_id;
+    }
     list->head_phys_id = list->free_phys_id;
-    list->free_phys_id = new_free_phys_id;
-    list->elems[list->head_phys_id].prev_phys_id = LIST_INVALID_ID;
     list->elems[list->head_phys_id].data = new_elem;
-    list->elems[list->free_phys_id].prev_phys_id = LIST_INVALID_ID;
-    *phys_id = list->head_phys_id;
+    list->free_phys_id = new_free_phys_id;
+    // printf("%zu\n", new_free_phys_id);
+    if (new_free_phys_id != LIST_INVALID_ID)
+        list->elems[new_free_phys_id].prev_phys_id = LIST_INVALID_ID;
+    ++list->n_elems;
 
     return LIST_NO_ERRORS;
 }
@@ -105,6 +118,8 @@ int ListGetByLogicId(List* list, size_t logic_id, ListElemT* found) {
     while (logic_id > 0) {
         
     }
+
+    return LIST_NO_ERRORS;
 }
 
 

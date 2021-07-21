@@ -1,7 +1,23 @@
-digraph {
-    node [shape = "box"];
+digraph List {
+    node [shape = record, style = filled, fillcolor = yellow];
+    edge [constraint = false];
+    rankdir = LR;
 
-    "first" [fillcolor = "red"];
-    "second" [fillcolor = "yellow"];
-    "first" -> "second";
+    subgraph Stat {
+        node [fillcolor = white];
+
+        stat [label = "size: 4|capacity: 8"];
+    }
+
+    subgraph cluster_memory {
+        label = "Nodes";
+        edge [constraint = true, style = invis];
+
+        0 [label = "used|phys_id: 0|logic_id: 0"];
+
+        0 -> 1;
+        1 -> 2;
+        2 -> 3;
+        3 -> 4;
+    }
 }

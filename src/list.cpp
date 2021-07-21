@@ -50,13 +50,8 @@ int ListCheckAndUpdateCapacity(List* list) {
             return LIST_ALLOC_ERROR;
         list->elems = new_elems;
         list->free_phys_id = list->n_elems;
-        // printf("n_elems: %zu\n", list->n_elems);
         ListConnectArray(list, list->n_elems, new_capacity - 1);
         list->capacity = new_capacity;
-    // for (size_t i = 0; i < list->capacity; i++) {
-    //     printf("cur_phys_id: %zu, prev_phys_id: %zu, next_phys_id: %zu\n", i, list->elems[i].prev_phys_id, list->elems[i].next_phys_id);
-    // }
-    
     }
 
     return LIST_NO_ERRORS;
@@ -75,12 +70,12 @@ int ListPushFront(List* list, const ListElemT new_elem, size_t* phys_id) {
         ListConnectNodes(list, list->free_phys_id, list->head_phys_id);
     else {
         list->elems[list->free_phys_id].next_phys_id = LIST_INVALID_ID;
+        list->elems[list->free_phys_id].prev_phys_id = LIST_INVALID_ID;
         list->tail_phys_id = list->free_phys_id;
     }
     list->head_phys_id = list->free_phys_id;
     list->elems[list->head_phys_id].data = new_elem;
     list->free_phys_id = new_free_phys_id;
-    // printf("%zu\n", new_free_phys_id);
     if (new_free_phys_id != LIST_INVALID_ID)
         list->elems[new_free_phys_id].prev_phys_id = LIST_INVALID_ID;
     ++list->n_elems;
@@ -89,7 +84,7 @@ int ListPushFront(List* list, const ListElemT new_elem, size_t* phys_id) {
 }
 
 
-int ListPushBack(List* list, const ListElemT new_elem) {
+int ListPushBack(List* list, const ListElemT new_elem, size_t* phys_id) {
     assert(list);
 
     int check_res = 0;
@@ -97,11 +92,18 @@ int ListPushBack(List* list, const ListElemT new_elem) {
         return check_res;
 
     size_t new_free_phys_id = list->elems[list->free_phys_id].next_phys_id;
-    ListConnectNodes(list, list->free_phys_id, list->head_phys_id);
-    list->head_phys_id = list->free_phys_id;
-    list->free_phys_id = new_free_phys_id;
-    list->elems[list->head_phys_id].prev_phys_id = LIST_INVALID_ID;
+    if (list->n_elems)
+        ListConnectNodes(list, list->tail_phys_id, list->free_phys_id);
+    else {
+        list->elems[list->free_phys_id].next_phys_id = LIST_INVALID_ID;
+        list->elems[list->free_phys_id].prev_phys_id = LIST_INVALID_ID;
+        list->head_phys_id = list->free_phys_id;
+    }
+    list->tail_phys_id = list->free_phys_id;
     list->elems[list->tail_phys_id].data = new_elem;
+    list->free_phys_id = new_free_phys_id;
+    if (new_free_phys_id != LIST_INVALID_ID)
+        list->elems[new_free_phys_id].prev_phys_id = LIST_INVALID_ID;
     ++list->n_elems;
 
     return LIST_NO_ERRORS;

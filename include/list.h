@@ -47,7 +47,7 @@ int ListCheckAndUpdateCapacity(List* list);
 
 int ListPushFront(List* list, const ListElemT new_elem, size_t* phys_id);
 
-int ListPushBack(List* list, const ListElemT new_elem);
+int ListPushBack(List* list, const ListElemT new_elem, size_t* phys_id);
 
 int ListAlloc(List* list);
 

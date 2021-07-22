@@ -27,9 +27,10 @@ struct List {
     size_t n_elems;
     size_t capacity;
     ListNode* elems;
-    size_t head_phys_id;
-    size_t tail_phys_id;
-    size_t free_phys_id;
+    size_t used_head_phys_id;
+    size_t used_tail_phys_id;
+    size_t free_head_phys_id;
+    size_t free_tail_phys_id;
 };
 
 enum ListErrors {

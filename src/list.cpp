@@ -32,9 +32,10 @@ int ListAlloc(List* list) {
     list->n_elems  = LIST_DEFAULT_N_ELEMS;
     list->capacity = LIST_DEFAULT_CAPACITY;
     ListConnectArray(list, 0, list->capacity - 1);
-    list->head_phys_id = LIST_INVALID_ID;
-    list->tail_phys_id = LIST_INVALID_ID;
-    list->free_phys_id = 0;
+    list->used_head_phys_id = LIST_INVALID_ID;
+    list->used_tail_phys_id = LIST_INVALID_ID;
+    list->free_head_phys_id = 0;
+    list->free_tail_phys_id = list->capacity - 1;
 
     return LIST_NO_ERRORS;
 }
@@ -49,9 +50,10 @@ int ListCheckAndUpdateCapacity(List* list) {
         if (!new_elems)
             return LIST_ALLOC_ERROR;
         list->elems = new_elems;
-        list->free_phys_id = list->n_elems;
-        ListConnectArray(list, list->n_elems, new_capacity - 1);
         list->capacity = new_capacity;
+        list->free_head_phys_id = list->n_elems;
+        list->free_tail_phys_id = list->capacity - 1;
+        ListConnectArray(list, list->n_elems, list->capacity - 1);
     }
 
     return LIST_NO_ERRORS;
@@ -65,19 +67,21 @@ int ListPushFront(List* list, const ListElemT new_elem, size_t* phys_id) {
     if ((check_res = ListCheckAndUpdateCapacity(list)) != LIST_NO_ERRORS)
         return check_res;
 
-    size_t new_free_phys_id = list->elems[list->free_phys_id].next_phys_id;
+    size_t new_free_phys_id = list->elems[list->free_head_phys_id].next_phys_id;
     if (list->n_elems)
-        ListConnectNodes(list, list->free_phys_id, list->head_phys_id);
+        ListConnectNodes(list, list->free_head_phys_id, list->used_head_phys_id);
     else {
-        list->elems[list->free_phys_id].next_phys_id = LIST_INVALID_ID;
-        list->elems[list->free_phys_id].prev_phys_id = LIST_INVALID_ID;
-        list->tail_phys_id = list->free_phys_id;
+        list->elems[list->free_head_phys_id].next_phys_id = LIST_INVALID_ID;
+        list->elems[list->free_head_phys_id].prev_phys_id = LIST_INVALID_ID;
+        list->used_tail_phys_id = list->free_head_phys_id;
     }
-    list->head_phys_id = list->free_phys_id;
-    list->elems[list->head_phys_id].data = new_elem;
-    list->free_phys_id = new_free_phys_id;
+    list->used_head_phys_id = list->free_head_phys_id;
+    list->elems[list->used_head_phys_id].data = new_elem;
+    list->free_head_phys_id = new_free_phys_id;
     if (new_free_phys_id != LIST_INVALID_ID)
         list->elems[new_free_phys_id].prev_phys_id = LIST_INVALID_ID;
+    else
+        list->free_tail_phys_id = LIST_INVALID_ID;
     ++list->n_elems;
 
     return LIST_NO_ERRORS;
@@ -91,19 +95,21 @@ int ListPushBack(List* list, const ListElemT new_elem, size_t* phys_id) {
     if ((check_res = ListCheckAndUpdateCapacity(list)) != LIST_NO_ERRORS)
         return check_res;
 
-    size_t new_free_phys_id = list->elems[list->free_phys_id].next_phys_id;
+    size_t new_free_phys_id = list->elems[list->free_head_phys_id].next_phys_id;
     if (list->n_elems)
-        ListConnectNodes(list, list->tail_phys_id, list->free_phys_id);
+        ListConnectNodes(list, list->used_tail_phys_id, list->free_head_phys_id);
     else {
-        list->elems[list->free_phys_id].next_phys_id = LIST_INVALID_ID;
-        list->elems[list->free_phys_id].prev_phys_id = LIST_INVALID_ID;
-        list->head_phys_id = list->free_phys_id;
+        list->elems[list->free_head_phys_id].next_phys_id = LIST_INVALID_ID;
+        list->elems[list->free_head_phys_id].prev_phys_id = LIST_INVALID_ID;
+        list->used_head_phys_id = list->free_head_phys_id;
     }
-    list->tail_phys_id = list->free_phys_id;
-    list->elems[list->tail_phys_id].data = new_elem;
-    list->free_phys_id = new_free_phys_id;
+    list->used_tail_phys_id = list->free_head_phys_id;
+    list->elems[list->used_tail_phys_id].data = new_elem;
+    list->free_head_phys_id = new_free_phys_id;
     if (new_free_phys_id != LIST_INVALID_ID)
         list->elems[new_free_phys_id].prev_phys_id = LIST_INVALID_ID;
+    else
+        list->free_tail_phys_id = LIST_INVALID_ID;
     ++list->n_elems;
 
     return LIST_NO_ERRORS;

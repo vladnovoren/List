@@ -21,16 +21,16 @@ struct ListNode {
     size_t prev_phys_id;
     size_t cur_phys_id;
     size_t next_phys_id;
+    bool is_used;
 };
 
 struct List {
     size_t n_elems;
     size_t capacity;
     ListNode* elems;
-    size_t used_head_phys_id;
-    size_t used_tail_phys_id;
-    size_t free_head_phys_id;
-    size_t free_tail_phys_id;
+    size_t head_phys_id;
+    size_t tail_phys_id;
+    size_t free_phys_id;
 };
 
 enum ListErrors {
@@ -54,9 +54,15 @@ int ListAlloc(List* list);
 
 void ListDestruct(List* list);
 
-int ListGetByLogicId(List* list, const size_t logic_id, ListElemT* found);
+int ListGetByLogicId(List* list, size_t logic_id, ListElemT* found);
 
 int ListGetByPhysId(List* list, const size_t phys_id, ListElemT* found);
+
+int ListEraseByLogicId(List* list, size_t logic_id);
+
+int ListInsertBefore(List* list, const size_t logic_id, const ListElemT new_elem);
+
+int ListInsertAfter(List* list, const size_t logic_id, const ListElemT new_elem);
 
 
 #endif /* list.h */

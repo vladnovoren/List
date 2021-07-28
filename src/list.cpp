@@ -32,10 +32,9 @@ int ListAlloc(List* list) {
     list->n_elems  = LIST_DEFAULT_N_ELEMS;
     list->capacity = LIST_DEFAULT_CAPACITY;
     ListConnectArray(list, 0, list->capacity - 1);
-    list->used_head_phys_id = LIST_INVALID_ID;
-    list->used_tail_phys_id = LIST_INVALID_ID;
-    list->free_head_phys_id = 0;
-    list->free_tail_phys_id = list->capacity - 1;
+    list->head_phys_id = LIST_INVALID_ID;
+    list->tail_phys_id = LIST_INVALID_ID;
+    list->free_phys_id = 0;
 
     return LIST_NO_ERRORS;
 }
@@ -51,8 +50,7 @@ int ListCheckAndUpdateCapacity(List* list) {
             return LIST_ALLOC_ERROR;
         list->elems = new_elems;
         list->capacity = new_capacity;
-        list->free_head_phys_id = list->n_elems;
-        list->free_tail_phys_id = list->capacity - 1;
+        list->free_phys_id = list->n_elems;
         ListConnectArray(list, list->n_elems, list->capacity - 1);
     }
 
@@ -67,21 +65,19 @@ int ListPushFront(List* list, const ListElemT new_elem, size_t* phys_id) {
     if ((check_res = ListCheckAndUpdateCapacity(list)) != LIST_NO_ERRORS)
         return check_res;
 
-    size_t new_free_phys_id = list->elems[list->free_head_phys_id].next_phys_id;
+    size_t new_free_phys_id = list->elems[list->free_phys_id].next_phys_id;
     if (list->n_elems)
-        ListConnectNodes(list, list->free_head_phys_id, list->used_head_phys_id);
-    else {
-        list->elems[list->free_head_phys_id].next_phys_id = LIST_INVALID_ID;
-        list->elems[list->free_head_phys_id].prev_phys_id = LIST_INVALID_ID;
-        list->used_tail_phys_id = list->free_head_phys_id;
-    }
-    list->used_head_phys_id = list->free_head_phys_id;
-    list->elems[list->used_head_phys_id].data = new_elem;
-    list->free_head_phys_id = new_free_phys_id;
-    if (new_free_phys_id != LIST_INVALID_ID)
-        list->elems[new_free_phys_id].prev_phys_id = LIST_INVALID_ID;
+        ListConnectNodes(list, list->free_phys_id, list->head_phys_id);
     else
-        list->free_tail_phys_id = LIST_INVALID_ID;
+        list->tail_phys_id = list->free_phys_id;
+    list->head_phys_id = list->free_phys_id;
+    list->free_phys_id = new_free_phys_id;
+    list->elems[list->head_phys_id].prev_phys_id = LIST_INVALID_ID;
+    list->elems[list->tail_phys_id].next_phys_id = LIST_INVALID_ID;
+    list->elems[list->head_phys_id].data = new_elem;
+    list->elems[list->head_phys_id].is_used = true;
+    if (list->free_phys_id != LIST_INVALID_ID)
+        list->elems[list->free_phys_id].prev_phys_id = LIST_INVALID_ID;
     ++list->n_elems;
 
     return LIST_NO_ERRORS;
@@ -95,23 +91,35 @@ int ListPushBack(List* list, const ListElemT new_elem, size_t* phys_id) {
     if ((check_res = ListCheckAndUpdateCapacity(list)) != LIST_NO_ERRORS)
         return check_res;
 
-    size_t new_free_phys_id = list->elems[list->free_head_phys_id].next_phys_id;
+    size_t new_free_phys_id = list->elems[list->free_phys_id].next_phys_id;
     if (list->n_elems)
-        ListConnectNodes(list, list->used_tail_phys_id, list->free_head_phys_id);
-    else {
-        list->elems[list->free_head_phys_id].next_phys_id = LIST_INVALID_ID;
-        list->elems[list->free_head_phys_id].prev_phys_id = LIST_INVALID_ID;
-        list->used_head_phys_id = list->free_head_phys_id;
-    }
-    list->used_tail_phys_id = list->free_head_phys_id;
-    list->elems[list->used_tail_phys_id].data = new_elem;
-    list->free_head_phys_id = new_free_phys_id;
+        ListConnectNodes(list, list->tail_phys_id, list->free_phys_id);
+    else
+        list->head_phys_id = list->free_phys_id;
+    list->tail_phys_id = list->free_phys_id;
+    list->free_phys_id = new_free_phys_id;
+    list->elems[list->head_phys_id].prev_phys_id = LIST_INVALID_ID;
+    list->elems[list->tail_phys_id].next_phys_id = LIST_INVALID_ID;
+    list->elems[list->tail_phys_id].data = new_elem;
+    list->elems[list->tail_phys_id].is_used = true;
     if (new_free_phys_id != LIST_INVALID_ID)
         list->elems[new_free_phys_id].prev_phys_id = LIST_INVALID_ID;
-    else
-        list->free_tail_phys_id = LIST_INVALID_ID;
     ++list->n_elems;
 
+    return LIST_NO_ERRORS;
+}
+
+
+inline int ListGetPhysId(List* list, size_t logic_id, size_t* phys_id) {
+    assert(list);
+    assert(phys_id);
+
+    if (logic_id >= list->n_elems)
+        return LIST_ABSENCE_OF_REQUIRED_ELEM;
+
+    while (logic_id)
+        *phys_id = list->elems[*phys_id].next_phys_id;
+    
     return LIST_NO_ERRORS;
 }
 
@@ -120,14 +128,38 @@ int ListGetByLogicId(List* list, size_t logic_id, ListElemT* found) {
     assert(list);
     assert(found);
 
-    if (logic_id >= list->n_elems)
+    size_t phys_id = 0;
+    int get_phys_id_res = ListGetPhysId(list, logic_id, &phys_id);
+    if (get_phys_id_res != LIST_NO_ERRORS)
+        return get_phys_id_res;
+
+    *found = list->elems[phys_id].data;
+    return LIST_NO_ERRORS;
+}
+
+
+int ListGetByPhysId(List* list, const size_t phys_id, ListElemT* found) {
+    assert(list);
+    assert(found);
+
+    if (list->elems[phys_id].is_used && phys_id < list->capacity)
+        *found = list->elems[phys_id].data;
+    else
         return LIST_ABSENCE_OF_REQUIRED_ELEM;
 
-    while (logic_id > 0) {
-        
-    }
-
     return LIST_NO_ERRORS;
+}
+
+
+int ListEraseByLogicId(List* list, size_t logic_id) {
+    assert(list);
+
+    size_t phys_id = 0;
+    int get_phys_id_res = ListGetPhysId(list, logic_id, &phys_id);
+    if (get_phys_id_res == LIST_NO_ERRORS) {
+        
+    } else
+        return get_phys_id_res;
 }
 
 

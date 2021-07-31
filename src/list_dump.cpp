@@ -11,9 +11,24 @@ void PutList(List* list, FILE* log, size_t phys_id, const int node_type) {
         fprintf(log, "\t\t\t\t\t<tr><td>%s</td></tr>\n", node_type == FREE ? "free" : "used");
         if (node_type == USED)
             fprintf(log, "\t\t\t\t\t<tr><td>value: %d</td></tr>\n", list->elems[phys_id].data);
-        fprintf(log, "\t\t\t\t\t<tr><td>phys_id: %zu</td></tr>\n", phys_id);
         if (node_type == USED)
             fprintf(log, "\t\t\t\t\t<tr><td>logic_id: %zu</td></tr>\n", cur_logic_id++);
+        
+        fprintf(log, "\t\t\t\t\t<tr><td>prev_phys_id: ");
+        if (list->elems[phys_id].prev_phys_id == LIST_INVALID_ID)
+            fprintf(log, " inv");
+        else
+            fprintf(log, "%zu", list->elems[phys_id].prev_phys_id);
+        fprintf(log, "</td></tr>\n");
+
+        fprintf(log, "\t\t\t\t\t<tr><td>next_phys_id: ");
+        if (list->elems[phys_id].next_phys_id == LIST_INVALID_ID)
+            fprintf(log, " inv");
+        else
+            fprintf(log, "%zu", list->elems[phys_id].next_phys_id);
+        fprintf(log, "</td></tr>\n");
+
+        fprintf(log, "\t\t\t\t\t<tr><td>phys_id: %zu</td></tr>\n", phys_id);
         fprintf(log, "\t\t\t\t</table>\n");
         fprintf(log, "\t\t\t>];\n");
         phys_id = list->elems[phys_id].next_phys_id;
@@ -21,7 +36,7 @@ void PutList(List* list, FILE* log, size_t phys_id, const int node_type) {
 }
 
 
-void ListDump(List* list, FILE* log) {
+void List_Dump(List* list, FILE* log) {
     assert(list);
     assert(log);
 
@@ -54,8 +69,9 @@ void ListDump(List* list, FILE* log) {
 
     fprintf(log, "\t\tsubgraph nodes {\n");
 
-    if (list->n_elems)
+    if (list->n_elems) {
         PutList(list, log, list->head_phys_id, USED);
+    }
     if (list->capacity - list->n_elems)
         PutList(list, log, list->free_phys_id, FREE);
 
@@ -66,7 +82,7 @@ void ListDump(List* list, FILE* log) {
         fprintf(log, "\t\t\t%zu -> %zu;\n", id, id + 1);
     fprintf(log, "\n");
 
-    fprintf(log, "\t\t\tedge [constraint = false, style = \"\"];\n\n");
+    fprintf(log, "\t\t\tedge [constraint = false, style = \"\", color = red];\n\n");
     size_t cur_phys_id = list->head_phys_id;
     while (cur_phys_id != LIST_INVALID_ID && list->elems[cur_phys_id].next_phys_id != LIST_INVALID_ID) {
         fprintf(log, "\t\t\t%zu -> %zu;\n", cur_phys_id, list->elems[cur_phys_id].next_phys_id);
@@ -75,6 +91,7 @@ void ListDump(List* list, FILE* log) {
     fprintf(log, "\n");
 
     cur_phys_id = list->free_phys_id;
+    fprintf(log, "\t\t\tedge [color = black];\n\n");
     while (cur_phys_id != LIST_INVALID_ID && list->elems[cur_phys_id].next_phys_id != LIST_INVALID_ID) {
         fprintf(log, "\t\t\t%zu -> %zu;\n", cur_phys_id, list->elems[cur_phys_id].next_phys_id);
         cur_phys_id = list->elems[cur_phys_id].next_phys_id;

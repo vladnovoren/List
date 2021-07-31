@@ -11,6 +11,6 @@ enum NodeTypes {
 
 void PutList(List* list, const size_t head_phys_id, const size_t tail_phys_id, const char* color);
 
-void ListDump(List* list, FILE* log);
+void List_Dump(List* list, FILE* log);
 
 #endif /* list_dump.h */

@@ -40,29 +40,39 @@ enum ListErrors {
 };
 
 
-inline void ListConnectNodes(List* list, const size_t first_phys_id, const size_t second_phys_id);
+inline void List_ConnectNodes(List* list, const size_t first_phys_id, const size_t second_phys_id);
 
-inline void ListConnectArray(List* list, const size_t begin_phys_id, const size_t end_phys_id);
+inline void List_ConnectArray(List* list, const size_t begin_phys_id, const size_t end_phys_id);
 
-int ListCheckAndUpdateCapacity(List* list);
+int List_CheckAndUpdateCapacity(List* list);
 
-int ListPushFront(List* list, const ListElemT new_elem, size_t* phys_id);
+int List_PushFront(List* list, const ListElemT new_elem, size_t* phys_id);
 
-int ListPushBack(List* list, const ListElemT new_elem, size_t* phys_id);
+int List_PushBack(List* list, const ListElemT new_elem, size_t* phys_id);
 
-int ListAlloc(List* list);
+int List_Alloc(List* list);
 
-void ListDestruct(List* list);
+void List_Destruct(List* list);
 
-int ListGetByLogicId(List* list, size_t logic_id, ListElemT* found);
+int List_GetPhysId(List* list, size_t logic_id, size_t* phys_id);
 
-int ListGetByPhysId(List* list, const size_t phys_id, ListElemT* found);
+int List_GetByLogicId(List* list, size_t logic_id, ListElemT* found);
 
-int ListEraseByLogicId(List* list, size_t logic_id);
+int List_GetByPhysId(List* list, const size_t phys_id, ListElemT* found);
 
-int ListInsertBefore(List* list, const size_t logic_id, const ListElemT new_elem);
+int List_InsertBefore(List* list, const size_t phys_id, const ListElemT new_elem);
 
-int ListInsertAfter(List* list, const size_t logic_id, const ListElemT new_elem);
+int List_InsertAfter(List* list, const size_t phys_id, const ListElemT new_elem);
+
+int List_EraseByPhysId(List* list, size_t phys_id);
+
+int List_EraseByLogicId(List* list, size_t logic_id);
+
+int List_PopFront(List* list);
+
+int List_PopBack(List* list);
+
+int List_Find(List* list, ListElemT elem, size_t* phys_id, size_t* logic_id);
 
 
 #endif /* list.h */

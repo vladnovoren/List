@@ -54,6 +54,8 @@ int List_Alloc(List* list);
 
 void List_Destruct(List* list);
 
+int List_Clear(List* list);
+
 int List_GetPhysId(List* list, size_t logic_id, size_t* phys_id);
 
 int List_GetByLogicId(List* list, size_t logic_id, ListElemT* found);

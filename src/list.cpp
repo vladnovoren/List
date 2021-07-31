@@ -287,6 +287,14 @@ void List_Destruct(List* list) {
 }
 
 
+int List_Clear(List* list) {
+    assert(list);
+
+    List_Destruct(list);
+    return List_Alloc(list);
+}
+
+
 int List_Find(List* list, ListElemT elem, size_t* phys_id, size_t* logic_id) {
     assert(list);
     assert(phys_id);
@@ -298,7 +306,7 @@ int List_Find(List* list, ListElemT elem, size_t* phys_id, size_t* logic_id) {
         while (*phys_id != LIST_INVALID_ID) {
             if (list->elems[*phys_id].data == elem)
                 return LIST_NO_ERRORS;
-            *logic_id++;
+            (*logic_id)++;
             *phys_id = list->elems[*phys_id].next_phys_id;
         }
     }

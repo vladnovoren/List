@@ -39,6 +39,8 @@ enum ListErrors {
     LIST_ABSENCE_OF_REQUIRED_ELEM
 };
 
+const ListElemT EMPTY_LIST_ELEM = {};
+
 
 void       List_ConnectNodes(List* list, const size_t first_phys_id, const size_t second_phys_id);
 
@@ -74,7 +76,7 @@ int        List_PopFront(List* list);
 
 int        List_PopBack(List* list);
 
-ListElemT* List_Find(List* list, ListElemT elem, size_t* phys_id, size_t* logic_id);
+ListElemT  List_Find(List* list, ListElemT elem, size_t* phys_id, size_t* logic_id);
 
 
 

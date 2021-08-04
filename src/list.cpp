@@ -295,7 +295,7 @@ int List_Clear(List* list) {
 }
 
 
-ListElemT* List_Find(List* list, const ListElemT elem, size_t* phys_id = nullptr, size_t* logic_id = nullptr) {
+ListElemT List_Find(List* list, const ListElemT elem, size_t* phys_id = nullptr, size_t* logic_id = nullptr) {
     assert(list);
 
     size_t cur_phys_id = 0,
@@ -310,7 +310,7 @@ ListElemT* List_Find(List* list, const ListElemT elem, size_t* phys_id = nullptr
                     *phys_id  = cur_phys_id;
                     *logic_id = cur_logic_id;
                 }
-                return list->elems + cur_phys_id;
+                return list->elems[cur_phys_id].data;
             }
             cur_logic_id++;
             cur_phys_id = list->elems[cur_phys_id].next_phys_id;
@@ -320,5 +320,5 @@ ListElemT* List_Find(List* list, const ListElemT elem, size_t* phys_id = nullptr
     if (phys_id && logic_id)
         *phys_id = *logic_id = LIST_INVALID_ID;
 
-    return nullptr;
+    return EMPTY_LIST_ELEM;
 }

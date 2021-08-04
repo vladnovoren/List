@@ -295,7 +295,7 @@ int List_Clear(List* list) {
 }
 
 
-ListElemT* List_Find(List* list, ListElemT elem, size_t* phys_id = nullptr, size_t* logic_id = nullptr) {
+ListElemT* List_Find(List* list, const ListElemT elem, size_t* phys_id = nullptr, size_t* logic_id = nullptr) {
     assert(list);
 
     size_t cur_phys_id = 0,

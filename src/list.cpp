@@ -1,7 +1,7 @@
 #include "list.h"
 
 
-inline void List_ConnectNodes(List* list, const size_t first_phys_id, const size_t second_phys_id) {
+void List_ConnectNodes(List* list, const size_t first_phys_id, const size_t second_phys_id) {
     assert(list);
 
     list->elems[first_phys_id].next_phys_id = second_phys_id;
@@ -9,7 +9,7 @@ inline void List_ConnectNodes(List* list, const size_t first_phys_id, const size
 }
 
 
-inline void List_ConnectArray(List* list, const size_t begin_phys_id, const size_t end_phys_id) {
+void List_ConnectArray(List* list, const size_t begin_phys_id, const size_t end_phys_id) {
     assert(list);
 
     list->elems[begin_phys_id].prev_phys_id = LIST_INVALID_ID;

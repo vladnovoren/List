@@ -48,9 +48,9 @@ void      List_ConnectArray(List* list, const size_t begin_phys_id, const size_t
 
 int       List_CheckAndUpdateCapacity(List* list);
 
-int       List_PushFront(List* list, const ListElemT new_elem, size_t* phys_id);
+int       List_PushFront(List* list, const ListElemT new_elem, size_t* phys_id = nullptr);
 
-int       List_PushBack(List* list, const ListElemT new_elem, size_t* phys_id);
+int       List_PushBack(List* list, const ListElemT new_elem, size_t* phys_id = nullptr);
 
 int       List_Alloc(List* list);
 
@@ -76,7 +76,7 @@ int       List_PopFront(List* list);
 
 int       List_PopBack(List* list);
 
-ListElemT List_Find(List* list, ListElemT elem, size_t* phys_id, size_t* logic_id);
+ListElemT List_Find(List* list, ListElemT elem, size_t* phys_id = nullptr, size_t* logic_id = nullptr);
 
 
 

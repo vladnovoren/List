@@ -72,7 +72,7 @@ size_t List_GetPrevPhysId(List* list, size_t phys_id) {
 }
 
 
-int List_PushFront(List* list, const ListElemT new_elem, size_t* phys_id = nullptr) {
+int List_PushFront(List* list, const ListElemT new_elem, size_t* phys_id) {
     assert(list);
 
     int check_res = 0;
@@ -100,7 +100,7 @@ int List_PushFront(List* list, const ListElemT new_elem, size_t* phys_id = nullp
 }
 
 
-int List_PushBack(List* list, const ListElemT new_elem, size_t* phys_id = nullptr) {
+int List_PushBack(List* list, const ListElemT new_elem, size_t* phys_id) {
     assert(list);
 
     int check_res = 0;
@@ -295,7 +295,7 @@ int List_Clear(List* list) {
 }
 
 
-ListElemT List_Find(List* list, const ListElemT elem, size_t* phys_id = nullptr, size_t* logic_id = nullptr) {
+ListElemT List_Find(List* list, const ListElemT elem, size_t* phys_id, size_t* logic_id) {
     assert(list);
 
     size_t cur_phys_id = 0,

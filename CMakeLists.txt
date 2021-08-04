@@ -9,6 +9,7 @@ add_executable(test_my_list src/test_my_list.cpp src/list.cpp)
 target_include_directories(list PUBLIC include)
 target_include_directories(test_my_list PUBLIC include)
 
+add_library(List STATIC src/list.cpp)
 
 set_target_properties(list test_stl test_my_list
     PROPERTIES

@@ -295,7 +295,7 @@ int List_Clear(List* list) {
 }
 
 
-int List_Find(List* list, ListElemT elem, size_t* phys_id, size_t* logic_id) {
+ListElemT* List_Find(List* list, ListElemT elem, size_t* phys_id, size_t* logic_id) {
     assert(list);
     assert(phys_id);
     assert(logic_id);
@@ -312,5 +312,5 @@ int List_Find(List* list, ListElemT elem, size_t* phys_id, size_t* logic_id) {
     }
 
     *phys_id = *logic_id = LIST_INVALID_ID;
-    return LIST_NO_ERRORS;
+    return list->elems + phys_id;
 }

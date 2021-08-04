@@ -74,7 +74,7 @@ int         List_PopFront(List* list);
 
 int         List_PopBack(List* list);
 
-int         List_Find(List* list, ListElemT elem, size_t* phys_id, size_t* logic_id);
+ListElemT*  List_Find(List* list, ListElemT elem, size_t* phys_id, size_t* logic_id);
 
 
 #endif /* list.h */

@@ -305,12 +305,12 @@ ListElemT* List_Find(List* list, ListElemT elem, size_t* phys_id, size_t* logic_
         *logic_id = 0;
         while (*phys_id != LIST_INVALID_ID) {
             if (list->elems[*phys_id].data == elem)
-                return LIST_NO_ERRORS;
+                return list->elems + phys_id;
             (*logic_id)++;
             *phys_id = list->elems[*phys_id].next_phys_id;
         }
     }
 
     *phys_id = *logic_id = LIST_INVALID_ID;
-    return list->elems + phys_id;
+    return nullptr;
 }

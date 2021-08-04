@@ -295,22 +295,30 @@ int List_Clear(List* list) {
 }
 
 
-ListElemT* List_Find(List* list, ListElemT elem, size_t* phys_id, size_t* logic_id) {
+ListElemT* List_Find(List* list, ListElemT elem, size_t* phys_id = nullptr, size_t* logic_id = nullptr) {
     assert(list);
-    assert(phys_id);
-    assert(logic_id);
+
+    size_t cur_phys_id = 0,
+          cur_logic_id = 0;
 
     if (list->n_elems) {
-        *phys_id = list->head_phys_id;
-        *logic_id = 0;
-        while (*phys_id != LIST_INVALID_ID) {
-            if (list->elems[*phys_id].data == elem)
-                return list->elems + phys_id;
-            (*logic_id)++;
-            *phys_id = list->elems[*phys_id].next_phys_id;
+        cur_phys_id = list->head_phys_id;
+        cur_logic_id = 0;
+        while (cur_phys_id != LIST_INVALID_ID) {
+            if (list->elems[cur_phys_id].data == elem) {
+                if (phys_id && logic_id) {
+                    *phys_id  = cur_phys_id;
+                    *logic_id = cur_logic_id;
+                }
+                return list->elems + cur_phys_id;
+            }
+            cur_logic_id++;
+            cur_phys_id = list->elems[cur_phys_id].next_phys_id;
         }
     }
 
-    *phys_id = *logic_id = LIST_INVALID_ID;
+    if (phys_id && logic_id)
+        *phys_id = *logic_id = LIST_INVALID_ID;
+
     return nullptr;
 }
